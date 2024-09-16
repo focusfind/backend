@@ -20,12 +20,11 @@ func (h handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	var account models.Account
 	json.Unmarshal(body, &account)
 
-	// Append to Spots table
+	// Append to Accounts table
 	if result := h.DB.Create(&account); result.Error != nil {
 		fmt.Println(result.Error)
 	}
 
-	// Send response 201 Created
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode("Created")

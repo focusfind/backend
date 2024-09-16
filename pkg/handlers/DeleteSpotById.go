@@ -14,8 +14,6 @@ func (h handler) DeleteSpotById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
 
-	// Find spot by id
-
 	var spot models.Spot
 
 	if result := h.DB.First(&spot, id); result.Error != nil {

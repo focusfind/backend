@@ -24,6 +24,9 @@ func main() {
 
 	// Account CRUD
 	router.HandleFunc("/accounts/", h.CreateAccount).Methods(http.MethodPost)
+	router.HandleFunc("/accounts/{id}", h.GetAccountById).Methods(http.MethodGet)
+	router.HandleFunc("/accounts/{id}", h.DeleteAccountById).Methods(http.MethodDelete)
+	router.HandleFunc("/accounts/{id}", h.UpdateAccountById).Methods(http.MethodPut)
 
 	log.Println("API is running!")
 	http.ListenAndServe(":42069", router)
