@@ -1,4 +1,4 @@
-module github.com/arnavsurve/spotme/backend
+module github.com/focusfind/backend
 
 go 1.23.1
 

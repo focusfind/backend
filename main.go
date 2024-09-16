@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/arnavsurve/spotme/backend/models"
+	"github.com/focusfind/backend/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
