@@ -1,8 +1,8 @@
 build:
-	go build -o bin/spotmeserver
+	go build -o bin/focusfind_server ./cmd
 
 run: build
-	./bin/spotmeserver
+	./bin/focusfind_server
 
 test:
 	go test -v ./...
