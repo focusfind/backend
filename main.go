@@ -16,7 +16,7 @@ import (
 func connectDB() *gorm.DB {
 	db_password := os.Getenv("DB_PASSWORD")
 
-	dsn := fmt.Sprintf("host=localhost user=postgres password=%s dbname=spotme port=5432 sslmode=disable", db_password)
+	dsn := fmt.Sprintf("host=localhost user=postgres password=%s dbname=focusfind port=5432 sslmode=disable", db_password)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connct to database:", err)
@@ -38,7 +38,7 @@ func main() {
 
 	r.POST("/api/spots", func(ctx *gin.Context) {
 		var spot models.Spot
-		if err := ctx.ShouldBindJSON(&spot); err == nil {
+		if err := ctx.ShouldBindJSON(&spot); err != nil {
 			db.Create(&spot)
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		}

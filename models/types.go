@@ -6,7 +6,8 @@ import (
 )
 
 type Spot struct {
-	ID          uint           `gorm:"primaryKey`
+	gorm.Model
+	ID          uint           `gorm:"primaryKey"`
 	Name        string         `gorm:"size:100;not null"`
 	Type        string         `gorm:"size:50;not null"`
 	Location    datatypes.JSON `gorm:"type:jsonb;not null"` // GeoJSON Point for latitude/longitude
