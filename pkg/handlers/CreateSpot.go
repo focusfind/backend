@@ -9,7 +9,7 @@ import (
 	"github.com/focusfind/backend/pkg/models"
 )
 
-const minDistanceMeters = 100
+const minDistanceMeters = 25
 
 func (h handler) CreateSpot(w http.ResponseWriter, r *http.Request) {
 	var spot models.Spot
