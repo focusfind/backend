@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/focusfind/backend/pkg/models"
 	"github.com/gorilla/mux"
@@ -28,15 +29,29 @@ func (h handler) UpdateSpotById(w http.ResponseWriter, r *http.Request) {
 	var spot models.Spot
 	if result := h.DB.First(&spot, id); result.Error != nil {
 		fmt.Println(result.Error)
+		http.Error(w, "Spot not found", http.StatusNotFound)
+		return
 	}
 
 	spot.Name = updatedSpot.Name
 	spot.Type = updatedSpot.Type
-	spot.Location = updatedSpot.Location
+	spot.Coordinates = updatedSpot.Coordinates
 	spot.Description = updatedSpot.Description
 	spot.BusyIndex = updatedSpot.BusyIndex
 
-	h.DB.Save(&spot)
+	result := h.DB.Save(&spot)
+	if result.Error != nil {
+		if strings.Contains(result.Error.Error(), "duplicate key value violates unique constraint") {
+			http.Error(w, "Duplicate entry for coordinates", http.StatusBadRequest)
+			return
+		} else if strings.Contains(result.Error.Error(), "duplicate key value violates unique constraint") {
+			http.Error(w, "Duplicate entry for name", http.StatusBadRequest)
+			return
+		}
+		log.Println("Error updating spot:", result.Error)
+		http.Error(w, "Failed to update spot", http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

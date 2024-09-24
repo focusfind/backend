@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/focusfind/backend/pkg/models"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

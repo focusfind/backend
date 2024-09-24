@@ -14,6 +14,7 @@ func main() {
 	db := db.Init()
 	h := handlers.New(db)
 	router := mux.NewRouter()
+	port := ":42069"
 
 	// Spots CRUD
 	router.HandleFunc("/spots", h.ListSpots).Methods(http.MethodGet)
@@ -28,6 +29,6 @@ func main() {
 	router.HandleFunc("/accounts/{id}", h.DeleteAccountById).Methods(http.MethodDelete)
 	router.HandleFunc("/accounts/{id}", h.UpdateAccountById).Methods(http.MethodPut)
 
-	log.Println("API is running!")
-	http.ListenAndServe(":42069", router)
+	log.Printf("API is running!\nhttp://127.0.0.1%s", port)
+	http.ListenAndServe(port, router)
 }
