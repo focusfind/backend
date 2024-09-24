@@ -25,6 +25,8 @@ func (c Coordinates) GormValue(ctx context.Context, db *gorm.DB) clause.Expr {
 	}
 }
 
+// Scan reads coordinates in the Well-Known Binary (WKB) format. TBH I
+// really have no idea how this works but it does.
 func (c *Coordinates) Scan(value interface{}) error {
 	if value == nil {
 		return nil

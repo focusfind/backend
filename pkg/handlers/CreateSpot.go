@@ -21,26 +21,26 @@ func (h handler) CreateSpot(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	// Check for nearby spots
-	var nearbySpots []models.Spot
-	result := h.DB.Select("id, name, type, ST_AsEWKB(coordinates) as coordinates, description, busy_index").
-		Where("ST_DWithin(coordinates::geography, ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, ?)",
-			spot.Coordinates.Longitude, spot.Coordinates.Latitude, minDistanceMeters).
-		Find(&nearbySpots)
-
-	if result.Error != nil {
-		log.Println("Error checking nearby spots:", result.Error)
-		http.Error(w, "Failed to check nearby spots", http.StatusInternalServerError)
-		return
-	}
-
-	if len(nearbySpots) > 0 {
-		http.Error(w, "A spot already exists within 100 meters of this location", http.StatusBadRequest)
-		return
-	}
+	// // Check for nearby spots
+	// var nearbySpots []models.Spot
+	// result := h.DB.Select("id, name, type, ST_AsEWKB(coordinates) as coordinates, description, busy_index").
+	// 	Where("ST_DWithin(coordinates::geography, ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography, ?)",
+	// 		spot.Coordinates.Longitude, spot.Coordinates.Latitude, minDistanceMeters).
+	// 	Find(&nearbySpots)
+	//
+	// if result.Error != nil {
+	// 	log.Println("Error checking nearby spots:", result.Error)
+	// 	http.Error(w, "Failed to check nearby spots", http.StatusInternalServerError)
+	// 	return
+	// }
+	//
+	// if len(nearbySpots) > 0 {
+	// 	http.Error(w, "A spot already exists within 100 meters of this location", http.StatusBadRequest)
+	// 	return
+	// }
 
 	// Append to Spots table
-	result = h.DB.Create(&spot)
+	result := h.DB.Create(&spot)
 	if result.Error != nil {
 		// Check for unique constraint violations
 		if strings.Contains(result.Error.Error(), "idx_coordinates") {
