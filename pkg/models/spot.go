@@ -5,9 +5,20 @@ import (
 	"database/sql/driver"
 	"fmt"
 
+	"github.com/twpayne/go-geom"
+	"github.com/twpayne/go-geom/encoding/wkb"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
+
+type Spot struct {
+	gorm.Model
+	Name        string      `json:"name" gorm:"unique"`
+	Type        string      `json:"type"`
+	Coordinates Coordinates `json:"coordinates" gorm:"type:geometry(Point,4326)"`
+	Description string      `json:"description"`
+	BusyIndex   int         `json:"busy_index"`
+}
 
 type Coordinates struct {
 	Latitude  float64 `json:"latitude"`
@@ -25,8 +36,7 @@ func (c Coordinates) GormValue(ctx context.Context, db *gorm.DB) clause.Expr {
 	}
 }
 
-// Scan reads coordinates in the Well-Known Binary (WKB) format. TBH I
-// really have no idea how this works but it does.
+// Scan reads coordinates in the Well-Known Binary (WKB) format
 func (c *Coordinates) Scan(value interface{}) error {
 	if value == nil {
 		return nil
@@ -34,31 +44,26 @@ func (c *Coordinates) Scan(value interface{}) error {
 
 	switch v := value.(type) {
 	case []byte:
-		// Skip the first 4 bytes (SRID) and the next byte (geometry type)
-		if len(v) < 21 {
-			return fmt.Errorf("invalid WKB length")
+		geometry, err := wkb.Unmarshal(v)
+		if err != nil {
+			return fmt.Errorf("Failed to unmarshal WKB: %w", err)
 		}
-		// Read X coordinate (longitude)
-		c.Longitude = float64(int64(v[5])|(int64(v[6])<<8)|(int64(v[7])<<16)|(int64(v[8])<<24)|
-			(int64(v[9])<<32)|(int64(v[10])<<40)|(int64(v[11])<<48)|(int64(v[12])<<56)) / 1e11
-		// Read Y coordinate (latitude)
-		c.Latitude = float64(int64(v[13])|(int64(v[14])<<8)|(int64(v[15])<<16)|(int64(v[16])<<24)|
-			(int64(v[17])<<32)|(int64(v[18])<<40)|(int64(v[19])<<48)|(int64(v[20])<<56)) / 1e11
+
+		// Ensure Point geometry
+		point, ok := geometry.(*geom.Point)
+		if !ok {
+			return fmt.Errorf("Expected Point geometry, got %T", geometry)
+		}
+
+		// Extract Longitude and Latitude
+		c.Longitude = point.Coords()[0]
+		c.Latitude = point.Coords()[1]
 		return nil
 	default:
-		return fmt.Errorf("unsupported Scan, storing driver.Value type %T into type Coordinates", value)
+		return fmt.Errorf("Unsupported Scan, storing driver.Value type %T into type Coordinates", value)
 	}
 }
 
 func (c Coordinates) Value() (driver.Value, error) {
 	return fmt.Sprintf("SRID=4326;POINT(%v %v)", c.Longitude, c.Latitude), nil
-}
-
-type Spot struct {
-	gorm.Model
-	Name        string      `json:"name" gorm:"unique"`
-	Type        string      `json:"type"`
-	Coordinates Coordinates `json:"coordinates" gorm:"type:geometry(Point,4326)"`
-	Description string      `json:"description"`
-	BusyIndex   int         `json:"busy_index"`
 }

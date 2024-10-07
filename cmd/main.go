@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-	// gin.SetMode(gin.ReleaseMode)
 	db := db.Init()
 	h := handlers.New(db)
 	router := mux.NewRouter()
@@ -19,6 +18,7 @@ func main() {
 	// Spots CRUD
 	router.HandleFunc("/spots", h.ListSpots).Methods(http.MethodGet)
 	router.HandleFunc("/spots/{id}", h.GetSpotById).Methods(http.MethodGet)
+	router.HandleFunc("/spots/{lat}/{long}/{radius}", h.GetSpotsInRadius).Methods(http.MethodGet) // Takes radius as meters!
 	router.HandleFunc("/spots", h.CreateSpot).Methods(http.MethodPost)
 	router.HandleFunc("/spots/{id}", h.DeleteSpotById).Methods(http.MethodDelete)
 	router.HandleFunc("/spots/{id}", h.UpdateSpotById).Methods(http.MethodPut)
